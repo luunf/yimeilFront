@@ -1,16 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Login from "./components/Login";
 import Bandeja from "./components/Bandeja";
 import Enviar from "./components/Enviar";
 import Bienvenida from "./components/Bienvenida";
+import Correo from "./components/Correo";
 import "./App.css";
 
 const App = () => {
   const [token, setToken] = useState(null);
   const [vistaActiva, setVistaActiva] = useState("bienvenida");
   const [mensajeExito, setMensajeExito] = useState("");
+  const [correoSeleccionado, setCorreoSeleccionado] = useState(null);
   const [authData, setAuthData] = useState(null);
+
+  const seleccionarCorreo = (correo) => {
+    setCorreoSeleccionado(correo);
+  };
+
+  useEffect(() => {
+    if (correoSeleccionado) {
+      console.log(correoSeleccionado);
+      setVistaActiva("correo");
+    }
+  }, [correoSeleccionado]);
 
   const manejarToken = (data) => {
     setAuthData(data);
@@ -58,16 +71,11 @@ const App = () => {
         }
       );
       const data = await response.json();
-
-      
-
-    } catch (error) {
-
-    }
+    } catch (error) {}
 
     setMensajeExito("Correo enviado con éxito");
-    setTimeout( () => {
-      setMensajeExito("")
+    setTimeout(() => {
+      setMensajeExito("");
       setVistaActiva("bandeja");
     }, 3000);
   };
@@ -82,9 +90,14 @@ const App = () => {
       <div className="main-content">
         {vistaActiva === "bienvenida" && <Bienvenida />}
         {vistaActiva === "login" && <Login manejarToken={manejarToken} />}
-        {vistaActiva === "bandeja" && token && <Bandeja token={token} />}
+        {vistaActiva === "bandeja" && token && (
+          <Bandeja token={token} seleccionarCorreo={seleccionarCorreo} />
+        )}
+        {vistaActiva === "correo" && correoSeleccionado && (
+          <Correo correo={correoSeleccionado} />
+        )}
         {vistaActiva === "enviar" && token && (
-          <Enviar handleEnviarCorreo={handleEnviarCorreo} authData={authData}/>
+          <Enviar handleEnviarCorreo={handleEnviarCorreo} authData={authData} />
         )}
         {mensajeExito && <div className="exito">{mensajeExito}</div>}
       </div>

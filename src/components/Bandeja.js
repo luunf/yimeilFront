@@ -1,42 +1,86 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-const Bandeja = ({ token }) => {
-    const [correos, setCorreos] = useState([]);
-    const [cargando, setCargando] = useState(true);
-    const systemId = "2";
+const Bandeja = ({ token, seleccionarCorreo }) => {
+  const [correos, setCorreos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const systemId = "2";
+  const params = new URLSearchParams({
+    token: token,
+    systemId: systemId,
+  });
+  const [emailSelec, setEmailSelec] = useState();
 
+  useEffect(() => {
+    const fetchCorreos = async () => {
+      const baseUrlYimeilGetEmails =
+        "https://poo2024.unsada.edu.ar/yimeil/emails";
+      try {
+        const response = await fetch(
+          `${baseUrlYimeilGetEmails}?${params.toString()}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        setCorreos(data);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+      } finally {
+        setCargando(false);
+      }
+    };
 
-    //pq tira error
-    useEffect(() => {
-        const fetchCorreos = async () => {
-            try {
-                const response = await fetch('https://poo2024.unsada.edu.ar/yimeil/emails', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        token: "66484954fe42e9f79500097bda2f784fb9dea7c479bc2e6374a3f3491a9f51ea",
-                        systemId: 2,
-                    })
-                  });
-                const data = await response.json();
-                setCorreos(data);
-            } catch (error) {
-                console.error("Error fetching emails:", error);
-            } finally {
-                setCargando(false);
-            }
-        };
+    fetchCorreos();
+  }, [token]);
 
-        fetchCorreos();
-    }, [token]);
+  const fetchDataEmail = async (correo) => {
+    const emailId = correo.emailId;
+    const baseUrlYimeilGetEmails = `https://poo2024.unsada.edu.ar/yimeil/emails/${emailId}`;
+    try {
+      const response = await fetch(
+        `${baseUrlYimeilGetEmails}?${params.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    return (
-        <div className="capa">
-            {cargando ? <p>Cargando correos...</p> : <ul>{correos.map(correo => <li key={correo.id}>{correo.asunto}</li>)}</ul>}
-        </div>
-    );
+      const emailData = await response.json();
+      setEmailSelec(emailData);
+      seleccionarCorreo(emailData);
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const handleClick = (correo) => {
+    fetchDataEmail(correo);
+    
+  };
+
+  return (
+    <div className="capa">
+      {cargando ? (
+        <p>Cargando correos...</p>
+      ) : (
+        <ul>
+          {correos.map((correo) => (
+            <li key={correo.emailId} onClick={() => handleClick(correo)}>
+              {" "}
+              {correo.subject}{" "}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 };
 
 export default Bandeja;

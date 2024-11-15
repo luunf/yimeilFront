@@ -1,0 +1,40 @@
+ .App {
+  display: flex;
+  height: 100vh; /* Asegura que la altura ocupe toda la ventana */
+}
+
+.sidebar {
+  flex: 1;
+  background-color: #f1f1f1;
+}
+
+.main-content {
+  flex: 4;
+  display: flex;
+  overflow: hidden; /* Asegura que el contenido no desborde */
+}
+
+.normal-view .main-content {
+  flex-direction: column;
+}
+
+.split-view .main-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.capa {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  max-width: 300px; /* Ajustar ancho según necesites */
+  background-color: #ffffff;
+}
+
+.correo-detalle {
+  flex: 2;
+  padding: 20px;
+  border-left: 1px solid #ccc;
+  overflow-y: auto;
+  background-color: #ffffff;
+}

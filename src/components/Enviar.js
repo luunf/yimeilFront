@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import "./Enviar.css";
+import axios from "axios";
 
 const Enviar = ({ handleEnviarCorreo, authData }) => {
   const token = `${authData.token}`;
-  const [systemId, setSystemId] = '3';
+  const [systemId, setSystemId] = '2';
   const [from, setFrom] = useState("");
   const [to, setTo] = useState([""]);
   const [subjet, setSubjet] = useState("");
@@ -25,94 +26,98 @@ const Enviar = ({ handleEnviarCorreo, authData }) => {
     return regex.test(email);
   };
 
-  const infoFile = (event) =>{
+  const infoFile = (event) => {
     const file = event.target.files[0];
     if (file !== null) {
-        setFileDetails(() => ({
-            
-            fileName: file.name,
-            fileExt: file.name.split('.').pop(),
-            filePath: file.webkitRelativePath || file.name,
-            mimeType: file.type,
-            isPublic: false
-          }));
-        }
-        
+      setFileDetails(() => ({
+        fileName: file.name,
+        fileExt: file.name.split(".").pop(),
+        filePath: file.webkitRelativePath || file.name,
+        mimeType: file.type,
+        isPublic: false,
+      }));
     }
+  };
 
   //limpia el asunto borrando espacios y caracteres especiales
   const cleanSubject = (subject) => {
-    return subject.replace(/[^a-zA-Z0-9]/g, '').replace(/\s+/g, '');
+    return subject.replace(/[^a-zA-Z0-9]/g, "").replace(/\s+/g, "");
   };
 
+  const params = new URLSearchParams({
+    token: token,
+    systemId: systemId,
+  });
 
- 
-  const folderDrive = async () =>{
-      const folderPath = `adjuntos/${cleanSubject(subjet)}`;
-      console.log(token);
-      try{
-        console.log("manualDebug preFetch");
-        const folderExiste = await fetch("https://poo2024.unsada.edu.ar/draiv/files",
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    token: "66484954fe42e9f79500097bda2f784fb9dea7c479bc2e6374a3f3491a9f51ea",
-                    systemId: 3,
-                  })
-                })
+  const folderDrive = async () => {
+    const folderPath = `adjuntos/${cleanSubject(subjet)}`;
+    const folderPathTest = `/`;
+    const draivFilesUrl = "https://poo2024.unsada.edu.ar/draiv/files";
 
-            console.log("manualDebug postFetch")
-
-        if(!folderExiste.ok){
-            throw new Error("error")
+    try {
+      const folderExiste = await fetch(
+        `${draivFilesUrl}?${params.toString()}&path=${folderPath}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-        const folderResponse = await folderExiste.json();
-        console.log(folderResponse)
-    }catch(error){
-      console.error("error conectando al endpoind files: "+error);
+      );
+
+      if (!folderExiste.ok) {
+        throw new Error("error");
+      }
+
+      const folderResponse = await folderExiste.json();
+    } catch (error) {
+      console.error("error conectando al endpoind files: " + error);
     }
-    console.log(fileDetails);
-}
-/*
-const uploadDraiv = async () =>{
-  const draivUpload = await fetch(
-    "https://poo2024.unsada.edu.ar/draiv/files",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: `${authData.token}`,
-        
-      }),
-    }
-  );
-}
-*/ 
+  };
+
+  const uploadDraiv = async () => {
+    const draivUpload = await fetch(
+      "https://poo2024.unsada.edu.ar/draiv/files",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: token,         
+          systemId: systemId,   
+          filePath: "string",         
+          fileExt: "string",         
+          fileName: "string",         
+          mimeType: "string",  
+          content: "string",      
+          isPublic: true/false  
+        }),
+      }
+    );
+  };
 
   const enviarCorreo = (event) => {
     setError("");
     event.preventDefault();
+
     if (!to) {
       setError("El campo de destinatarios es obligatorio.");
       return;
     }
     if (!isValidEmail(to)) {
-        setError("El correo electrónico no es válido.");
-        return;
+      setError("El correo electrónico no es válido.");
+      return;
     }
     if (!subjet) {
       setError("El asunto es obligatorio.");
       return;
     }
+
     const dataEmail = { token, systemId, from, to, subjet, body, attachments };
     folderDrive();
     //comentado para probar esta parte sin que se vuelva al menu principal
-    //handleEnviarCorreo(dataEmail);
+    handleEnviarCorreo(dataEmail);
   };
 
   return (
@@ -135,11 +140,7 @@ const uploadDraiv = async () =>{
           onChange={(e) => setSubjet(e.target.value)}
         />
 
-        <input
-          className="inputAttachments"
-          type="file"
-          onChange={infoFile}
-        />
+        <input className="inputAttachments" type="file" onChange={infoFile} />
 
         <textarea
           className="inputBody"
