@@ -27,11 +27,8 @@ const Login = ({ manejarToken }) => {
       throw new Error(errorData.error || 'Error desconocido');
     }
     
-   
-    const data = await response.json();
-  
-    
-    manejarToken(data);
+   const data = await response.json();
+     manejarToken(data); 
 } catch (error) {
     setError(error.message); 
   }

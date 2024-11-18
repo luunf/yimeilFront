@@ -125,6 +125,52 @@ const Enviar = ({ handleEnviarCorreo, authData }) => {
       <h2>Enviar Mensaje</h2>
       <form className="formEnviar" onSubmit={enviarCorreo}>
         <input
+            className="inputEmail"
+            type="email"
+            placeholder="Remitente:"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
+        <input
+          className="inputEmail"
+          type="email"
+          placeholder="Destinatarios:"
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+        />
+       
+        <input
+          className="inputSubjet"
+          type="text"
+          value={subjet}
+          placeholder="Asunto:"
+          onChange={(e) => setSubjet(e.target.value)}
+        />
+
+        <input className="inputAttachments" type="file" onChange={infoFile} />
+
+        <textarea
+          className="inputBody"
+          value={body}
+          placeholder="Mensaje"
+          onChange={(e) => setBody(e.target.value)}
+        />
+
+        <button className="btnEnviar" type="submit">
+          Enviar
+        </button>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+};
+
+export default Enviar;
+/*return (
+    <div className="capa">
+      <h2>Enviar Mensaje</h2>
+      <form className="formEnviar" onSubmit={enviarCorreo}>
+        <input
           className="inputEmail"
           type="email"
           placeholder="Destinatarios:"
@@ -156,6 +202,4 @@ const Enviar = ({ handleEnviarCorreo, authData }) => {
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
-};
-
-export default Enviar;
+};*/ 
